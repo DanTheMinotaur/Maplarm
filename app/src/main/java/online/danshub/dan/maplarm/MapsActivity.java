@@ -1,5 +1,6 @@
 package online.danshub.dan.maplarm;
 
+import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -8,6 +9,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -17,8 +20,9 @@ import java.util.ArrayList;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
-    private final ArrayList<Marker> markers = new ArrayList<Marker>();
     private Marker currentMarker = null;
+    private int radiusDistance = 200;
+    private Circle radius = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,16 +64,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 //markers.add(mMap.addMarker(new MarkerOptions().position(latLng)));
                 currentMarker = mMap.addMarker(new MarkerOptions().position(latLng));
-                Log.v("Marker", "Size: " + markers.size());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+                drawRadius(latLng);
+
             }
         });
-
+        /*
+            Used to remove the map marker from the map
+         */
         mMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
             @Override
             public void onMapLongClick(LatLng latLng) {
                 currentMarker.remove();
             }
         });
+    }
+
+    private void drawRadius(LatLng position) {
+        if (radius != null) {
+            radius.remove();
+        }
+        CircleOptions options = new CircleOptions();
+        options.center(position);
+
+        options.radius(radiusDistance);
+        options.strokeColor(Color.BLACK);
+
+        // Fill color of the circle
+        options.fillColor(0x30ff0000);
+
+        // Border width of the circle
+        options.strokeWidth(2);
+
+        // Adding the circle to the GoogleMap
+        radius = mMap.addCircle(options);
     }
 }
