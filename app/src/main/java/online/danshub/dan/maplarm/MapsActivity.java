@@ -21,7 +21,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
-    private int radiusDistance = 200;
+    private int radiusDistance = 200; // Place holder for passing radius in
     private Circle radius = null;
 
     @Override
