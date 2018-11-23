@@ -29,6 +29,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        //setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_maps);
@@ -40,7 +41,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.v("Map", "Map Created");
 
         FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
+        FloatingActionButton setLocationButton = findViewById(R.id.setLocation);
 
+        /*
+            Button to go to settings menu
+         */
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -48,6 +53,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Log.v("User Action", "Button Clicked!");
                 Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(settingIntent);
+            }
+        });
+
+        /*
+            Button will call something that tells the app to go into location mode.
+         */
+        setLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Location Set, I'll wake you up when we get there. ", Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -96,6 +111,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    /*
+        Method will draw a visible radius around a point, based on LatLng position
+     */
     private void drawRadius(LatLng position) {
         if (radius != null) {
             radius.remove();
