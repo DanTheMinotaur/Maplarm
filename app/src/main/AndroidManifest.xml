@@ -43,7 +43,6 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity android:name=".MapOverlay"></activity>
     </application>
 
 </manifest>

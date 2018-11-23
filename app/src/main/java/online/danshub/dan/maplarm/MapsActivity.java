@@ -3,6 +3,7 @@ package online.danshub.dan.maplarm;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
@@ -21,7 +22,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
@@ -29,7 +29,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int radiusDistance = 200; // Place holder for passing radius in
     private Circle radius = null;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
-    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +41,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
 
         Log.v("Map", "Map Created");
+
+        FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
+
+        settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Clicked Settings!", Toast.LENGTH_LONG).show();
+                Log.v("User Action", "Button Clicked!");
+            }
+        });
     }
 
 
