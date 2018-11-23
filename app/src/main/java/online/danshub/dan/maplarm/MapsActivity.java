@@ -1,9 +1,15 @@
 package online.danshub.dan.maplarm;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -15,7 +21,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -23,6 +28,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Marker currentMarker = null;
     private int radiusDistance = 200; // Place holder for passing radius in
     private Circle radius = null;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private Button settingsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +41,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        Log.v("Map", "Map Created");
     }
 
 
@@ -66,7 +73,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 currentMarker = mMap.addMarker(new MarkerOptions().position(latLng));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
                 drawRadius(latLng);
-
+                Log.v("Map", "Map Marker Set");
             }
         });
         /*
@@ -76,6 +83,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 currentMarker.remove();
+                Log.v("Map", "Map Marker Removed");
             }
         });
     }
@@ -99,4 +107,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Adding the circle to the GoogleMap
         radius = mMap.addCircle(options);
     }
+
+    /*
+        Method Checks to see if location permission is granted
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, true);
+        }
+    }
+    */
 }
