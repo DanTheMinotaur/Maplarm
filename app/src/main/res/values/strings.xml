@@ -1,7 +1,16 @@
 <resources>
     <string name="app_name">Maplarm</string>
-    <string name="title_activity_maps">Map</string>
+    <string name="title_activity_maps">Maplarm</string>
     <string name="permission_required_toast">Location Permission is needed for this app!</string>
     <string name="location_permission_denied">Location Permission is denied, you need to re-enable them</string>
     <string name="permission_rationale_location">Location Permission is requied to use this app!</string>
+
+    <string name="alarm_tone_settings">Set Alarm Ringtone</string>
+    <string name="alarm_tone_settings_summary">Set your own alarm tone</string>
+    <string name="radius_settings">Set Radius for Alert</string>
+    <string name="radius_settings_summary">The alarm will sound when you hit this area</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="use_previous_settings">Use Last Settings on Boot</string>
 </resources>

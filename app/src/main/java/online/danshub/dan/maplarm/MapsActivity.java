@@ -1,15 +1,12 @@
 package online.danshub.dan.maplarm;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -49,6 +46,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 Toast.makeText(getApplicationContext(), "Clicked Settings!", Toast.LENGTH_LONG).show();
                 Log.v("User Action", "Button Clicked!");
+                Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
+                startActivity(settingIntent);
             }
         });
     }
