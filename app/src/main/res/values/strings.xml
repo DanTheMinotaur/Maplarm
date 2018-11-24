@@ -9,6 +9,8 @@
     <string name="alarm_tone_settings_summary">Set your own alarm tone</string>
     <string name="radius_settings">Set Radius for Alert</string>
     <string name="radius_settings_summary">The alarm will sound when you hit this area</string>
+    <string name="zoom_settings">Set Default Zoom</string>
+    <string name="zoom_settings_summary">Sets the default zoom level when the map is clicked</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
