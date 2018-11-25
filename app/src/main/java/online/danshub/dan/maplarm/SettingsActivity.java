@@ -5,6 +5,9 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
+/**
+ * Calls the settings fragment for displaying preferences.
+ */
 public class SettingsActivity extends AppCompatActivity {
 
     @Override

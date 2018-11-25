@@ -3,7 +3,9 @@
     <string name="title_activity_maps">Maplarm</string>
     <string name="permission_required_toast">Location Permission is needed for this app!</string>
     <string name="location_permission_denied">Location Permission is denied, you need to re-enable them</string>
-    <string name="permission_rationale_location">Location Permission is requied to use this app!</string>
+    <string name="location_permission_granted">Location Permission Granted</string>
+    <string name="location_permission_required">Location Permission is requied to use this app!</string>
+    <string name="location_set">Location Set, I\'ll wake you up when we get there. </string>
 
     <string name="alarm_tone_settings">Set Alarm Ringtone</string>
     <string name="alarm_tone_settings_summary">Set your own alarm tone</string>

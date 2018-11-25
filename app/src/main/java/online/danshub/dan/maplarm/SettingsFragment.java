@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
+ * Used to call preferences.xml for user settings.
  */
 public class SettingsFragment extends PreferenceFragmentCompat {
 

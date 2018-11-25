@@ -65,13 +65,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         FloatingActionButton setLocationButton = findViewById(R.id.setLocation);
 
         /*
-            Button to go to settings menu
+            Button to go to settings activity when clicked
          */
         settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Clicked Settings!", Toast.LENGTH_LONG).show();
-                Log.v("User Action", "Button Clicked!");
+                Log.v("User Action", "Settings Button Clicked!");
                 Intent settingIntent = new Intent(getApplicationContext(), SettingsActivity.class);
                 startActivity(settingIntent);
             }
@@ -79,11 +78,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         /*
             Button will call something that tells the app to go into location mode.
+            Currently placeholder for future app functionality
          */
         setLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Location Set, I'll wake you up when we get there. ", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -108,10 +108,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     private void requestLocationPermission() {
         if (!checkLocationPermission()) {
-            Toast.makeText(getApplicationContext(), "Need Location Permission", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getText(R.string.location_permission_required), Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
-            Toast.makeText(getApplicationContext(), "Location Permission Granted", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getText(R.string.location_permission_granted), Toast.LENGTH_LONG).show();
         }
 
     }
@@ -144,9 +144,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
-            Criteria criteria = new Criteria();
-
-            Location lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            Location lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(new Criteria(), false));
             // Sets the camera to zoom into the last known location of the user on start.
             if (lastLocation != null) {
                 LatLng lastLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
@@ -186,7 +184,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             mMap.setMyLocationEnabled(true);
         }
 
-
+        /*
+         * Sets the marker and moves the camera to focus on this point.,
+         */
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -211,6 +211,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onMapLongClick(LatLng latLng) {
                 currentMarker.remove();
+                radius.remove();
                 Log.v("Map", "Map Marker Removed");
             }
         });
@@ -227,10 +228,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         options.center(position);
 
         options.radius(radiusDistance);
-        options.strokeColor(Color.BLACK);
+        options.strokeColor(getResources().getColor(R.color.colorPrimaryDark));
 
         // Fill color of the circle
-        options.fillColor(0x30ff0000);
+        options.fillColor(getResources().getColor(R.color.colorPrimary));
 
         // Border width of the circle
         options.strokeWidth(2);
