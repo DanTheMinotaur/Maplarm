@@ -1,5 +1,7 @@
 package online.danshub.dan.maplarm;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 

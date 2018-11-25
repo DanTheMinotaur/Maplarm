@@ -3,11 +3,14 @@ package online.danshub.dan.maplarm;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -16,10 +19,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -30,14 +35,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private GoogleMap mMap;
     private Marker currentMarker = null;
-    private int radiusDistance = 200; // Place holder for passing radius in
+    private int radiusDistance = 200; // Default value
+    private int zoomDistance = 13;
     private Circle radius = null;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private static final String RADUIS_SETTING = "editRadius";
+    private static final String ZOOM_SETTING = "zoomDistance";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
+
+        setPreferences();
 
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
@@ -47,6 +56,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         Log.v("Map", "Map Created");
 
+        createButtonsOverlay();
+
+    }
+
+    private void createButtonsOverlay() {
         FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
         FloatingActionButton setLocationButton = findViewById(R.id.setLocation);
 
@@ -72,17 +86,34 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Toast.makeText(getApplicationContext(), "Location Set, I'll wake you up when we get there. ", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    /*
+        Method for getting user settings and applying to map.
+     */
+    protected void setPreferences() {
+        // Settings For App.
+        PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        radiusDistance = Integer.parseInt(sharedPreferences.getString(MapsActivity.RADUIS_SETTING, "200"));
+        Log.v("RADIUS", String.valueOf(radiusDistance));
+        zoomDistance = Integer.parseInt(sharedPreferences.getString(MapsActivity.ZOOM_SETTING, "13"));
+        Log.v("ZOOM", String.valueOf(zoomDistance));
 
     }
 
+    /*
+        Requests permission to use the location
+     */
     private void requestLocationPermission() {
         if (!checkLocationPermission()) {
             Toast.makeText(getApplicationContext(), "Need Location Permission", Toast.LENGTH_LONG).show();
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
         } else {
             Toast.makeText(getApplicationContext(), "Location Permission Granted", Toast.LENGTH_LONG).show();
-            mMap.setMyLocationEnabled(true);
         }
+
     }
 
     /*
@@ -110,8 +141,25 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         // Check if the user has given permission to use location and start tracking current location.
         if (checkLocationPermission()) {
+
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
 
+            Criteria criteria = new Criteria();
+
+            Location lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            // Sets the camera to zoom into the last known location of the user on start. 
+            if (lastLocation != null) {
+                LatLng lastLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, zoomDistance));
+
+                CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(lastLatLng)
+                        .zoom(zoomDistance)
+                        .build();
+                mMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+            }
+
+            // For later usage.
             LocationListener locationListener = new LocationListener() {
                 @Override
                 public void onLocationChanged(Location location) {
@@ -135,6 +183,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             };
 
             locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+            mMap.setMyLocationEnabled(true);
         }
 
 
@@ -150,7 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
                 //markers.add(mMap.addMarker(new MarkerOptions().position(latLng)));
                 currentMarker = mMap.addMarker(new MarkerOptions().position(latLng));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomDistance));
                 drawRadius(latLng);
                 Log.v("Map", "Map Marker Set");
             }
@@ -189,14 +238,4 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         // Adding the circle to the GoogleMap
         radius = mMap.addCircle(options);
     }
-
-    /*
-        Method Checks to see if location permission is granted
-
-    private void enableMyLocation() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            PermissionUtils.requestLocationPermission(this, LOCATION_PERMISSION_REQUEST_CODE, Manifest.permission.ACCESS_FINE_LOCATION, true);
-        }
-    }
-    */
 }

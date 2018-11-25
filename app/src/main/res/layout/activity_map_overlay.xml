@@ -14,7 +14,7 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/setLocation"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="@android:drawable/ic_menu_manage" />
 
@@ -27,8 +27,9 @@
         android:layout_marginBottom="16dp"
         android:clickable="true"
         android:focusable="true"
-        app:layout_constraintBottom_toTopOf="@+id/settingsButton"
+        android:scaleType="center"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/arrow_down_float" />
+        app:srcCompat="@drawable/ic_baseline_navigation_24px" />
 
 </android.support.constraint.ConstraintLayout>

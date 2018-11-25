@@ -3,6 +3,7 @@
 
     <EditTextPreference
         android:defaultValue="300"
+        android:inputType="number"
         android:key="editRadius"
         android:selectAllOnFocus="true"
         android:singleLine="true"
@@ -10,7 +11,8 @@
         android:title="@string/radius_settings" />
     <EditTextPreference
         android:defaultValue="12"
-        android:key="edit_text_preference_1"
+        android:inputType="number"
+        android:key="zoomDistance"
         android:selectAllOnFocus="true"
         android:singleLine="true"
         android:summary="@string/zoom_settings_summary"
