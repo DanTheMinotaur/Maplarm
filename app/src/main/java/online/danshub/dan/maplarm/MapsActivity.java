@@ -147,7 +147,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Criteria criteria = new Criteria();
 
             Location lastLocation = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-            // Sets the camera to zoom into the last known location of the user on start. 
+            // Sets the camera to zoom into the last known location of the user on start.
             if (lastLocation != null) {
                 LatLng lastLatLng = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastLatLng, zoomDistance));
