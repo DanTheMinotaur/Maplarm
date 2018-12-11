@@ -1,6 +1,7 @@
 package online.danshub.dan.maplarm;
 
 import android.Manifest;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -10,6 +11,9 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -41,6 +45,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Circle radius = null;
     private static final String RADUIS_SETTING = "editRadius";
     private static final String ZOOM_SETTING = "zoomDistance";
+    private GeofencingClient mGeofencingClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +63,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.v("Map", "Map Created");
 
         createButtonsOverlay();
+
+    }
+
+    protected Geofence createGeofencingServicesTest() {
+        mGeofencingClient = LocationServices.getGeofencingClient(this);
+
+        /*
+        Intent geoFenceIntent = new Intent(this, MapsActivity.class);
+
+        PendingIntent geoFenceList = PendingIntent.getActivity(this, 1, geoFenceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        */
+        if (currentMarker != null) {
+            Geofence geoFence = new Geofence.Builder()
+                .setRequestId("TestGeoFence")
+                .setCircularRegion(
+                        currentMarker.getPosition().latitude,
+                        currentMarker.getPosition().longitude,
+                        radiusDistance
+                )
+                .build();
+            return geoFence;
+
+        } else {
+            Toast.makeText(getApplicationContext(), "No Marker Set! ", Toast.LENGTH_LONG).show();
+            return null;
+        }
 
     }
 
