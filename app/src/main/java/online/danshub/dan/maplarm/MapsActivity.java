@@ -15,6 +15,8 @@ import android.location.LocationManager;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
 import com.google.android.gms.location.LocationServices;
+
+import android.media.MediaPlayer;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -46,6 +48,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String RADUIS_SETTING = "editRadius";
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
+    private MediaPlayer alarmSound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +67,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         createButtonsOverlay();
 
+    }
+
+    protected void alarmSound() {
+        alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
+
+        alarmSound.start();
     }
 
     protected Geofence createGeofencingServicesTest() {
@@ -118,6 +127,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 if (currentMarker == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_marker_not_set), Toast.LENGTH_LONG).show();
+                    alarmSound();
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
                 }
