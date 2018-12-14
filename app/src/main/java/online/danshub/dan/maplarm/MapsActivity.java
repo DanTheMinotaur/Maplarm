@@ -1,6 +1,7 @@
 package online.danshub.dan.maplarm;
 
 import android.Manifest;
+import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -14,9 +15,12 @@ import android.location.LocationManager;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingClient;
+import com.google.android.gms.location.GeofencingEvent;
+import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 
 import android.media.MediaPlayer;
+import android.nfc.Tag;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -37,9 +41,11 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
-
+    private static final String TAG = "MAP";
     private GoogleMap mMap;
     private Marker currentMarker = null;
     private int radiusDistance = 200; // Default value
@@ -48,7 +54,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String RADUIS_SETTING = "editRadius";
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
-    private MediaPlayer alarmSound;
+
+    private PendingIntent geoFencesPendingIntent;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,20 +71,37 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        Log.v("Map", "Map Created");
+        Log.v(TAG, "Map Created");
 
         createButtonsOverlay();
 
-    }
-
-    protected void alarmSound() {
-        alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
-
-        alarmSound.start();
-    }
-
-    protected Geofence createGeofencingServicesTest() {
         mGeofencingClient = LocationServices.getGeofencingClient(this);
+
+    }
+
+
+
+    private PendingIntent createGeofencePendingIntent() {
+        Log.v(TAG, "createGeofencePendingIntent");
+
+        if (geoFencesPendingIntent != null) {
+            return geoFencesPendingIntent;
+        }
+
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
+
+        geoFencesPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
+
+        return geoFencesPendingIntent;
+    }
+
+    /**
+     * Creates the geofence object based off of the current map marker
+     * @return Geofence Object, or null if no marker set.
+     */
+    protected Geofence createGeofencingServicesTest() {
+
 
         /*
         Intent geoFenceIntent = new Intent(this, MapsActivity.class);
@@ -85,21 +110,48 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         */
         if (currentMarker != null) {
-            Geofence geoFence = new Geofence.Builder()
+            return new Geofence.Builder()
                 .setRequestId("TestGeoFence")
                 .setCircularRegion(
                         currentMarker.getPosition().latitude,
                         currentMarker.getPosition().longitude,
                         radiusDistance
-                )
+                ).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                .setExpirationDuration(100000000)
                 .build();
-            return geoFence;
-
+            //return geoFence;
         } else {
             Toast.makeText(getApplicationContext(), "No Marker Set! ", Toast.LENGTH_LONG).show();
             return null;
         }
+    }
 
+    private GeofencingRequest getGeofencingRequest(Geofence geoFence) {
+        GeofencingRequest request = new GeofencingRequest.Builder()
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofence(geoFence)
+                .build();
+
+        return request;
+    }
+
+    private void addGeofence() {
+        if(checkLocationPermission()){
+            mGeofencingClient.addGeofences(getGeofencingRequest(createGeofencingServicesTest()), createGeofencePendingIntent())
+            .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(getApplicationContext(), "Tracking Working!?!?! Really I doubt it", Toast.LENGTH_LONG).show();
+                    Log.v(TAG, "Geofence Added");
+                }
+            })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "Could not create Geofence");
+                }
+            });
+        }
     }
 
     private void createButtonsOverlay() {
@@ -127,9 +179,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 if (currentMarker == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_marker_not_set), Toast.LENGTH_LONG).show();
-                    alarmSound();
+
+
                 } else {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
+                    addGeofence();
+                    //alarmSound();
                 }
 
             }

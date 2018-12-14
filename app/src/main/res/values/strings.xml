@@ -15,6 +15,9 @@
     <string name="zoom_settings">Set Default Zoom</string>
     <string name="zoom_settings_summary">Sets the default zoom level when the map is clicked</string>
 
+    <string name="geofence_transition_entered">You\'re at your destination </string>
+    <string name="unknown_geofence_transition">I don\'t know where da fuck you are. </string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="use_previous_settings">Use Last Settings on Boot</string>
