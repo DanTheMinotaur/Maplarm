@@ -6,6 +6,7 @@
     <string name="location_permission_granted">Location Permission Granted</string>
     <string name="location_permission_required">Location Permission is required to use this app!</string>
     <string name="location_set">Location Set, I\'ll wake you up when we get there. </string>
+    <string name="location_marker_not_set">No Marker Set! Set a marker to start tracking! </string>
 
     <string name="alarm_tone_settings">Set Alarm Ringtone</string>
     <string name="alarm_tone_settings_summary">Set your own alarm tone</string>

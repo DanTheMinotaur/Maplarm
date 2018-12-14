@@ -116,7 +116,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
+                if (currentMarker == null) {
+                    Toast.makeText(getApplicationContext(), getString(R.string.location_marker_not_set), Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
+                }
+
             }
         });
     }
