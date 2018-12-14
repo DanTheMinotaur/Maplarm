@@ -13,6 +13,10 @@ import com.google.android.gms.location.GeofencingEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+    Some of the code from this class comes from: https://github.com/googlesamples/android-play-location/blob/master/Geofencing/app/src/main/java/com/google/android/gms/location/sample/geofencing/GeofenceErrorMessages.java
+ */
+
 public class GeofenceTransitionsIntentService extends IntentService {
     private static final String TAG = "GEOFENCING";
     private MediaPlayer alarmSound;
@@ -23,6 +27,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
      */
     public GeofenceTransitionsIntentService(String name) {
         super(name);
+    }
+
+    public GeofenceTransitionsIntentService() {
+        super("MapLarmGeofenceIntentService");
     }
 
     protected void alarmSound() {
@@ -53,6 +61,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
             Toast.makeText(getApplicationContext(), geofenceTransitionDetails, Toast.LENGTH_LONG).show();
             Log.i(TAG, geofenceTransitionDetails);
+
+            alarmSound();
         }
     }
 

@@ -54,6 +54,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String RADUIS_SETTING = "editRadius";
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
+    private MediaPlayer alarmSound;
 
     private PendingIntent geoFencesPendingIntent;
 
@@ -134,6 +135,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         return request;
     }
+    protected void alarmSound() {
+        alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
+
+        alarmSound.start();
+    }
 
     private void addGeofence() {
         if(checkLocationPermission()){
@@ -142,6 +148,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(getApplicationContext(), "Tracking Working!?!?! Really I doubt it", Toast.LENGTH_LONG).show();
+                    //alarmSound();
                     Log.v(TAG, "Geofence Added");
                 }
             })
