@@ -26,6 +26,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -55,9 +56,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
     private MediaPlayer alarmSound;
+    private FloatingActionButton settingsButton, stopLocationButton;
+    private FloatingActionButton setLocationButton;
+    private Boolean TrackingActive;
 
     private PendingIntent geoFencesPendingIntent;
 
+    public void setRadiusDistance(int radiusDistance) {
+        this.radiusDistance = radiusDistance;
+    }
+
+    public void setZoomDistance(int zoomDistance) {
+        this.zoomDistance = zoomDistance;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +91,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        // put your code here...
+        setPreferences();
+    }
 
 
     private PendingIntent createGeofencePendingIntent() {
@@ -103,13 +120,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      */
     protected Geofence createGeofencingServicesTest() {
 
-
-        /*
-        Intent geoFenceIntent = new Intent(this, MapsActivity.class);
-
-        PendingIntent geoFenceList = PendingIntent.getActivity(this, 1, geoFenceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        */
         if (currentMarker != null) {
             return new Geofence.Builder()
                 .setRequestId("TestGeoFence")
@@ -161,9 +171,28 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    private void removeGeofence() {
+        mGeofencingClient.removeGeofences(createGeofencePendingIntent())
+                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.v(TAG, "GeoFENCE rEMOVED");
+                    }
+                })
+                .addOnFailureListener(this, new OnFailureListener() {
+                    @Override
+                    public void onFailure(Exception e) {
+                        Log.e(TAG, "Could not stop the Tracking");
+                    }
+                });
+    }
+
     private void createButtonsOverlay() {
-        FloatingActionButton settingsButton = findViewById(R.id.settingsButton);
-        FloatingActionButton setLocationButton = findViewById(R.id.setLocation);
+        settingsButton = findViewById(R.id.settingsButton);
+        setLocationButton = findViewById(R.id.setLocation);
+        stopLocationButton = findViewById(R.id.stopLocationButton);
+        setLocationButton.hide();
+        stopLocationButton.hide();
 
         /*
             Button to go to settings activity when clicked
@@ -186,14 +215,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 if (currentMarker == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_marker_not_set), Toast.LENGTH_LONG).show();
-
-
                 } else {
-                    Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
+                    //Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
                     addGeofence();
+                    setLocationButton.hide();
+                    stopLocationButton.show();
+                    //setLocationButton.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), R.drawable.));
                     //alarmSound();
                 }
+            }
+        });
 
+        stopLocationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                removeGeofence();
+                stopLocationButton.hide();
             }
         });
     }
@@ -311,6 +348,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 currentMarker = mMap.addMarker(new MarkerOptions().position(latLng));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoomDistance));
                 drawRadius(latLng);
+
+                setLocationButton.show();
                 Log.v("Map", "Map Marker Set");
             }
         });

@@ -33,10 +33,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
         super("MapLarmGeofenceIntentService");
     }
 
-    protected void alarmSound() {
+    private void alarmSound() {
         alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
 
         alarmSound.start();
+    }
+
+    public MediaPlayer getAlarm() {
+        return alarmSound;
     }
 
     @Override
