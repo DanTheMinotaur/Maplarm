@@ -64,7 +64,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
     private MediaPlayer alarmSound;
-    private FloatingActionButton settingsButton, stopLocationButton, setLocationButton, saveMarkerButton;
+    private FloatingActionButton settingsButton, stopLocationButton, setLocationButton, saveMarkerButton, savedMarkersButton;
     private Boolean TrackingActive;
     private NotificationCompat.Builder trackingNotificaiton;
     private static final String CHANNEL_ID = "MapLarmNotification";
@@ -247,12 +247,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setLocationButton = findViewById(R.id.setLocation);
         stopLocationButton = findViewById(R.id.stopLocationButton);
         saveMarkerButton = findViewById(R.id.saveMarkerButton);
+        savedMarkersButton = findViewById(R.id.savedMarkers);
 
         // Hide the buttons from view until needed.
         setLocationButton.hide();
         stopLocationButton.hide();
         saveMarkerButton.hide();
 
+        savedMarkersButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.v(TAG, db.markerDao().getAll().toString());
+                startActivity(new Intent(getApplicationContext(), MarkerListActivity.class));
+            }
+        });
         /*
             Button to go to settings activity when clicked
          */
