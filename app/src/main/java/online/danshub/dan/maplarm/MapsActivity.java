@@ -69,7 +69,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private NotificationCompat.Builder trackingNotificaiton;
     private static final String CHANNEL_ID = "MapLarmNotification";
     private static final int notificaitonID = 1200;
-    private MarkerDatabase db;
+    protected static MarkerDatabase db;
 
     private PendingIntent geoFencesPendingIntent;
 
@@ -92,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
-        //db = Room.databaseBuilder(getApplicationContext(), MarkerDatabase.class, "maplarm-db").build();
+        db = Room.databaseBuilder(this, MarkerDatabase.class, "maplarm-db").allowMainThreadQueries().build();
     }
 
     @Override

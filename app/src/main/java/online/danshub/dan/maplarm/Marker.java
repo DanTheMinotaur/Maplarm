@@ -9,15 +9,15 @@ import android.arch.persistence.room.PrimaryKey;
  */
 @Entity
 public class Marker {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     public int id;
 
     @ColumnInfo(name = "marker_name")
     public String markerName;
 
     @ColumnInfo(name = "latitiude")
-    public String latitude;
+    public double latitude;
 
     @ColumnInfo(name = "longitude")
-    public String longitude;
+    public double longitude;
 }

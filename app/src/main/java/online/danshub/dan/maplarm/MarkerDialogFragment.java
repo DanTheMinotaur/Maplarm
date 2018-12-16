@@ -4,16 +4,13 @@ package online.danshub.dan.maplarm;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
-import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,7 +29,7 @@ public class MarkerDialogFragment extends DialogFragment {
 
         markerName = dialogView.findViewById(R.id.markername);
 
-        Log.v(TAG, markerName.getText().toString());
+        //Log.v(TAG, markerName.getText().toString());
 
         builder.setView(dialogView)
                 .setPositiveButton(R.string.add_marker, new DialogInterface.OnClickListener() {
@@ -43,6 +40,13 @@ public class MarkerDialogFragment extends DialogFragment {
                                 "Position: " + MapsActivity.currentMarker.getPosition()
                             + " Name: " + markerText
                         );
+
+                        Marker marker = new Marker();
+                        marker.latitude = MapsActivity.currentMarker.getPosition().latitude;
+                        marker.longitude = MapsActivity.currentMarker.getPosition().longitude;
+                        marker.markerName = markerText;
+
+                        MapsActivity.db.markerDao().insertMarker(marker);
                     }
                 })
                 .setNegativeButton(R.string.close_add_marker, new DialogInterface.OnClickListener() {
