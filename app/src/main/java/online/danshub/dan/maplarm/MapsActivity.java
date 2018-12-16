@@ -5,6 +5,7 @@ import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.arch.persistence.room.Room;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -66,6 +67,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean TrackingActive;
     private NotificationCompat.Builder trackingNotificaiton;
     private static final String CHANNEL_ID = "MapLarmNotification";
+    private static final int notificaitonID = 1200;
+    private MarkerDatabase db;
 
     private PendingIntent geoFencesPendingIntent;
 
@@ -88,64 +91,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
-
-
+        db = Room.databaseBuilder(getApplicationContext(), MarkerDatabase.class, "maplarm-db").build();
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        // put your code here...
         setPreferences();
     }
 
-
-    private PendingIntent createGeofencePendingIntent() {
-        Log.v(TAG, "createGeofencePendingIntent");
-
-        if (geoFencesPendingIntent != null) {
-            return geoFencesPendingIntent;
-        }
-
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-
-        geoFencesPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
-                FLAG_UPDATE_CURRENT);
-
-        return geoFencesPendingIntent;
-    }
-
-    /**
-     * Creates the geofence object based off of the current map marker
-     * @return Geofence Object, or null if no marker set.
-     */
-    protected Geofence createGeofencingServicesTest() {
-
-        if (currentMarker != null) {
-            return new Geofence.Builder()
-                .setRequestId("TestGeoFence")
-                .setCircularRegion(
-                        currentMarker.getPosition().latitude,
-                        currentMarker.getPosition().longitude,
-                        radiusDistance
-                ).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
-                .setExpirationDuration(100000000)
-                .build();
-            //return geoFence;
-        } else {
-            Toast.makeText(getApplicationContext(), "No Marker Set! ", Toast.LENGTH_LONG).show();
-            return null;
-        }
-    }
-
-    private GeofencingRequest getGeofencingRequest(Geofence geoFence) {
-        GeofencingRequest request = new GeofencingRequest.Builder()
-                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-                .addGeofence(geoFence)
-                .build();
-
-        return request;
-    }
     protected void alarmSound() {
         alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
 
@@ -175,22 +129,74 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     /**
      * Creates a notification for the app to display the users current location..
+     *
      */
-    private void createNotification(int notificationID) {
-        String coordinates = "Unknown";
-        if (currentMarker != null) {
-            coordinates = currentMarker.getPosition().toString();
+    private void createNotification(int notificationID, Boolean create) {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        if (create) {
+            String coordinates = "Unknown";
+            if (currentMarker != null) {
+                coordinates = currentMarker.getPosition().toString();
+            }
+
+            trackingNotificaiton = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setContentTitle("Maplarm Tracking Location")
+                    .setContentText("Current Coordinates: " + coordinates)
+                    .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+            notificationManager.notify(notificationID, trackingNotificaiton.build());
+        } else {
+            notificationManager.cancel(notificationID);
+        }
+    }
+
+
+    private PendingIntent createGeofencePendingIntent() {
+        Log.v(TAG, "createGeofencePendingIntent");
+
+        if (geoFencesPendingIntent != null) {
+            return geoFencesPendingIntent;
         }
 
-        trackingNotificaiton = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher)
-                .setContentTitle("Maplarm Tracking Location")
-                .setContentText("Current Coordinates: " + coordinates)
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
+        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
 
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+        geoFencesPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.
+                FLAG_UPDATE_CURRENT);
 
-        notificationManager.notify(notificationID, trackingNotificaiton.build());
+        return geoFencesPendingIntent;
+    }
+
+    /**
+     * Creates the geofence object based off of the current map marker
+     * @return Geofence Object, or null if no marker set.
+     */
+    protected Geofence createGeofencingServicesTest() {
+
+        if (currentMarker != null) {
+            return new Geofence.Builder()
+                    .setRequestId("TestGeoFence")
+                    .setCircularRegion(
+                            currentMarker.getPosition().latitude,
+                            currentMarker.getPosition().longitude,
+                            radiusDistance
+                    ).setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER)
+                    .setExpirationDuration(100000000)
+                    .build();
+            //return geoFence;
+        } else {
+            Toast.makeText(getApplicationContext(), "No Marker Set! ", Toast.LENGTH_LONG).show();
+            return null;
+        }
+    }
+
+    private GeofencingRequest getGeofencingRequest(Geofence geoFence) {
+        GeofencingRequest request = new GeofencingRequest.Builder()
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+                .addGeofence(geoFence)
+                .build();
+
+        return request;
     }
 
     private void addGeofence() {
@@ -202,7 +208,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Toast.makeText(getApplicationContext(), "Tracking Working!?!?! Really I doubt it", Toast.LENGTH_LONG).show(); //TODO Remove this
                     //alarmSound();
                     Log.v(TAG, "Geofence Added");
-                    createNotification(1200);
+                    createNotification(notificaitonID, true);
                 }
             })
             .addOnFailureListener(this, new OnFailureListener() {
@@ -220,8 +226,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Log.v(TAG, "GeoFENCE Removed");
-                }
+                    Log.v(TAG, "Geofence Removed");
+                    createNotification(notificaitonID, false);
+              }
             })
             .addOnFailureListener(this, new OnFailureListener() {
                 @Override
@@ -407,6 +414,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onMapLongClick(LatLng latLng) {
                 currentMarker.remove();
                 radius.remove();
+                if(setLocationButton != null) {
+                    setLocationButton.hide();
+                }
                 Log.v("Map", "Map Marker Removed");
             }
         });
