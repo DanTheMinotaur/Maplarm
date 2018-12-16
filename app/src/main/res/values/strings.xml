@@ -25,4 +25,7 @@
 
     <string name="channel_name">Maplarm Notification Channel</string>
     <string name="channel_description">Noficiations channel for maplarm</string>
+
+    <string name="add_marker">Save This Marker</string>
+    <string name="close_add_marker">Close</string>
 </resources>

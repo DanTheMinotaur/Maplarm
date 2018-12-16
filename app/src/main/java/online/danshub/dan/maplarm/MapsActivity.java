@@ -1,6 +1,7 @@
 package online.danshub.dan.maplarm;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -30,6 +31,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
@@ -54,7 +56,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
     private static final String TAG = "MAP";
     private GoogleMap mMap;
-    private Marker currentMarker = null;
+    protected static Marker currentMarker = null;
     private int radiusDistance = 200; // Default value
     private int zoomDistance = 13;
     private Circle radius = null;
@@ -90,7 +92,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         mGeofencingClient = LocationServices.getGeofencingClient(this);
 
-        db = Room.databaseBuilder(getApplicationContext(), MarkerDatabase.class, "maplarm-db").build();
+        //db = Room.databaseBuilder(getApplicationContext(), MarkerDatabase.class, "maplarm-db").build();
     }
 
     @Override
@@ -235,13 +237,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     Log.e(TAG, "Could not stop the Tracking");
                 }
             });
-        }
+    }
 
+    /**
+     * Method creates buttons on top of layout and controls listeners
+     */
     private void createButtonsOverlay() {
         settingsButton = findViewById(R.id.settingsButton);
         setLocationButton = findViewById(R.id.setLocation);
         stopLocationButton = findViewById(R.id.stopLocationButton);
         saveMarkerButton = findViewById(R.id.saveMarkerButton);
+
         // Hide the buttons from view until needed.
         setLocationButton.hide();
         stopLocationButton.hide();
@@ -288,10 +294,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
+        saveMarkerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MarkerDialogFragment markerDialogFragment = new MarkerDialogFragment();
+                markerDialogFragment.show(getSupportFragmentManager(), "Test");
+            }
+        });
     }
 
-    /*
-        Method for getting user settings and applying to map.
+    /**
+     *
+     * Method for getting user settings and applying to map.
      */
     protected void setPreferences() {
         // Settings For App.
@@ -305,8 +320,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    /*
-        Requests permission to use the location
+    /**
+     * Requests permission to use the location
      */
     private void requestLocationPermission() {
         if (!checkLocationPermission()) {
@@ -318,8 +333,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     }
 
-    /*
-        Method checks if location permission has been granted.
+    /**
+     * Method checks if location permission has been granted.
      */
     private Boolean checkLocationPermission() {
         return ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED &&
