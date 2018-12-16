@@ -21,4 +21,11 @@
         android:defaultValue="false"
         android:key="useLastSettings"
         android:title="@string/use_previous_settings" />
+    <Preference
+        android:key="alarm_file_path"
+        android:title="@string/alarm_chooser">
+        <intent
+            android:targetClass="online.danshub.dan.maplarm.AlarmChooserActivity"
+            android:targetPackage="online.danshub.dan.maplarm" />
+    </Preference>
 </PreferenceScreen>

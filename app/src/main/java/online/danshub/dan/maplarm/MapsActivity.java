@@ -2,6 +2,8 @@ package online.danshub.dan.maplarm;
 
 import android.Manifest;
 import android.app.IntentService;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -21,11 +23,14 @@ import com.google.android.gms.location.LocationServices;
 
 import android.media.MediaPlayer;
 import android.nfc.Tag;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -59,22 +64,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private FloatingActionButton settingsButton, stopLocationButton;
     private FloatingActionButton setLocationButton;
     private Boolean TrackingActive;
+    private NotificationCompat.Builder trackingNotificaiton;
+    private static final String CHANNEL_ID = "MapLarmNotification";
 
     private PendingIntent geoFencesPendingIntent;
-
-    public void setRadiusDistance(int radiusDistance) {
-        this.radiusDistance = radiusDistance;
-    }
-
-    public void setZoomDistance(int zoomDistance) {
-        this.zoomDistance = zoomDistance;
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         //setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
-
+        createNotificationChannel();
         setPreferences();
 
         setContentView(R.layout.activity_maps);
@@ -88,6 +87,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         createButtonsOverlay();
 
         mGeofencingClient = LocationServices.getGeofencingClient(this);
+
+
 
     }
 
@@ -151,15 +152,57 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         alarmSound.start();
     }
 
+    /**
+     * For android 8.0+ needs to register the notifications channel
+     * https://developer.android.com/training/notify-user/build-notification
+     */
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    /**
+     * Creates a notification for the app to display the users current location..
+     */
+    private void createNotification(int notificationID) {
+        String coordinates = "Unknown";
+        if (currentMarker != null) {
+            coordinates = currentMarker.getPosition().toString();
+        }
+
+        trackingNotificaiton = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle("Maplarm Tracking Location")
+                .setContentText("Current Coordinates: " + coordinates)
+                .setPriority(NotificationCompat.PRIORITY_HIGH);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
+
+        notificationManager.notify(notificationID, trackingNotificaiton.build());
+    }
+
     private void addGeofence() {
         if(checkLocationPermission()){
             mGeofencingClient.addGeofences(getGeofencingRequest(createGeofencingServicesTest()), createGeofencePendingIntent())
             .addOnSuccessListener(this, new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(getApplicationContext(), "Tracking Working!?!?! Really I doubt it", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Tracking Working!?!?! Really I doubt it", Toast.LENGTH_LONG).show(); //TODO Remove this
                     //alarmSound();
                     Log.v(TAG, "Geofence Added");
+                    createNotification(1200);
                 }
             })
             .addOnFailureListener(this, new OnFailureListener() {
@@ -171,21 +214,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+
     private void removeGeofence() {
         mGeofencingClient.removeGeofences(createGeofencePendingIntent())
-                .addOnSuccessListener(this, new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.v(TAG, "GeoFENCE rEMOVED");
-                    }
-                })
-                .addOnFailureListener(this, new OnFailureListener() {
-                    @Override
-                    public void onFailure(Exception e) {
-                        Log.e(TAG, "Could not stop the Tracking");
-                    }
-                });
-    }
+            .addOnSuccessListener(this, new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.v(TAG, "GeoFENCE Removed");
+                }
+            })
+            .addOnFailureListener(this, new OnFailureListener() {
+                @Override
+                public void onFailure(Exception e) {
+                    Log.e(TAG, "Could not stop the Tracking");
+                }
+            });
+        }
 
     private void createButtonsOverlay() {
         settingsButton = findViewById(R.id.settingsButton);
@@ -216,7 +260,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (currentMarker == null) {
                     Toast.makeText(getApplicationContext(), getString(R.string.location_marker_not_set), Toast.LENGTH_LONG).show();
                 } else {
-                    //Toast.makeText(getApplicationContext(), getString(R.string.location_set), Toast.LENGTH_LONG).show();
                     addGeofence();
                     setLocationButton.hide();
                     stopLocationButton.show();
@@ -231,6 +274,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             public void onClick(View v) {
                 removeGeofence();
                 stopLocationButton.hide();
+                if (currentMarker != null) {
+                    setLocationButton.show();
+                }
             }
         });
     }

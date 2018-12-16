@@ -18,7 +18,11 @@
     <string name="geofence_transition_entered">You\'re at your destination </string>
     <string name="unknown_geofence_transition">I don\'t know where da fuck you are. </string>
 
+    <string name="alarm_chooser">Change the alarm noise</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="use_previous_settings">Use Last Settings on Boot</string>
+
+    <string name="channel_name">Maplarm Notification Channel</string>
+    <string name="channel_description">Noficiations channel for maplarm</string>
 </resources>

@@ -2,7 +2,12 @@ package online.danshub.dan.maplarm;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.location.Location;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.preference.PreferenceManager;
+import android.support.v4.app.NotificationCompat;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -10,6 +15,7 @@ import android.widget.Toast;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,7 +25,7 @@ import java.util.List;
 
 public class GeofenceTransitionsIntentService extends IntentService {
     private static final String TAG = "GEOFENCING";
-    private MediaPlayer alarmSound;
+    private MediaPlayer alarmSound = new MediaPlayer();
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
      *
@@ -34,7 +40,26 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     private void alarmSound() {
-        alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        String music_file = preferences.getString("alarm_file_path", "");
+
+        Log.v(TAG, music_file);
+
+        if (music_file.isEmpty()) {
+            alarmSound = MediaPlayer.create(this, R.raw.oldfashionedschoolbelldanielsimon);
+            Log.v(TAG, "Default Alarm Noise Selected");
+        } else {
+            try {
+                // TODO Fix this
+                Uri uri = Uri.parse(music_file);
+                alarmSound.setDataSource(this, uri);
+                Log.v(TAG, "Custom Alarm Noise Selected");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         alarmSound.start();
     }
