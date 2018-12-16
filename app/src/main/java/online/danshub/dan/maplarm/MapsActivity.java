@@ -62,8 +62,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final String ZOOM_SETTING = "zoomDistance";
     private GeofencingClient mGeofencingClient;
     private MediaPlayer alarmSound;
-    private FloatingActionButton settingsButton, stopLocationButton;
-    private FloatingActionButton setLocationButton;
+    private FloatingActionButton settingsButton, stopLocationButton, setLocationButton, saveMarkerButton;
     private Boolean TrackingActive;
     private NotificationCompat.Builder trackingNotificaiton;
     private static final String CHANNEL_ID = "MapLarmNotification";
@@ -242,8 +241,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         settingsButton = findViewById(R.id.settingsButton);
         setLocationButton = findViewById(R.id.setLocation);
         stopLocationButton = findViewById(R.id.stopLocationButton);
+        saveMarkerButton = findViewById(R.id.saveMarkerButton);
+        // Hide the buttons from view until needed.
         setLocationButton.hide();
         stopLocationButton.hide();
+        saveMarkerButton.hide();
 
         /*
             Button to go to settings activity when clicked
@@ -403,6 +405,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 drawRadius(latLng);
 
                 setLocationButton.show();
+                saveMarkerButton.show();
                 Log.v("Map", "Map Marker Set");
             }
         });
@@ -416,6 +419,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 radius.remove();
                 if(setLocationButton != null) {
                     setLocationButton.hide();
+                }
+                if(saveMarkerButton != null) {
+                    saveMarkerButton.hide();
                 }
                 Log.v("Map", "Map Marker Removed");
             }
